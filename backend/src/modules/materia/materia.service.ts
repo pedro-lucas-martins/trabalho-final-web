@@ -1,7 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { CreateMateriaDto } from './dto/create-materia.dto';
-import { UpdateMateriaDto } from './dto/update-materia.dto';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { PrismaService } from "../../prisma/prisma.service";
+import { CreateMateriaDto } from "./dto/create-materia.dto";
+import { UpdateMateriaDto } from "./dto/update-materia.dto";
 
 @Injectable()
 export class MateriaService {
@@ -22,7 +22,7 @@ export class MateriaService {
         topicos: true,
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
     });
   }
@@ -48,7 +48,7 @@ export class MateriaService {
   }
 
   async update(id: string, updateMateriaDto: UpdateMateriaDto) {
-    const materia = await this.findOne(id);
+    await this.findOne(id);
 
     return this.prisma.materia.update({
       where: { id },
@@ -79,7 +79,7 @@ export class MateriaService {
     }
 
     const concluidos = materia.topicos.filter(
-      (t) => t.status === 'CONCLUIDO',
+      (t) => t.status === "CONCLUIDO"
     ).length;
 
     return {

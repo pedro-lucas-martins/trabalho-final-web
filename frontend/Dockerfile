@@ -6,6 +6,7 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 COPY tsconfig.json ./
+COPY tsconfig.node.json ./
 COPY vite.config.ts ./
 COPY tailwind.config.js ./
 COPY postcss.config.js ./
@@ -26,8 +27,11 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Install dumb-init and http-server for serving
-RUN apk add --no-cache dumb-init http-server
+# Instala o utilitário do sistema via Alpine (apk)
+RUN apk add --no-cache dumb-init
+
+# Instala o servidor web via Node (npm)
+RUN npm install -g http-server
 
 # Copy built application from builder
 COPY --from=builder /app/dist ./dist
