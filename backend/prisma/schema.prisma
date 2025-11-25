@@ -1,0 +1,82 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Matéria - Disciplina de estudo
+model Materia {
+  id        String   @id @default(cuid())
+  nome      String   @unique
+  descricao String?
+  topicos   Topico[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("materias")
+}
+
+// Tópico - Subtema dentro de uma matéria
+model Topico {
+  id               String           @id @default(cuid())
+  titulo           String
+  prioridade       Prioridade       @default(MEDIA)
+  status           Status           @default(NAO_INICIADO)
+  materiaId        String
+  materia          Materia          @relation(fields: [materiaId], references: [id], onDelete: Cascade)
+  recursos         Recurso[]
+  sessoesEstudo    SessaoEstudo[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  @@index([materiaId])
+  @@map("topicos")
+}
+
+// Recurso - Link ou anotação associado a um tópico
+model Recurso {
+  id        String   @id @default(cuid())
+  titulo    String
+  url       String
+  topicoId  String
+  topico    Topico   @relation(fields: [topicoId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([topicoId])
+  @@map("recursos")
+}
+
+// Sessão de Estudo - Evento agendado para estudar um tópico
+model SessaoEstudo {
+  id        String   @id @default(cuid())
+  titulo    String
+  dataInicio DateTime
+  dataFim   DateTime
+  topicoId  String
+  topico    Topico   @relation(fields: [topicoId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([topicoId])
+  @@map("sessoes_estudo")
+}
+
+// Enums
+enum Prioridade {
+  BAIXA
+  MEDIA
+  ALTA
+}
+
+enum Status {
+  NAO_INICIADO
+  EM_ANDAMENTO
+  CONCLUIDO
+}
