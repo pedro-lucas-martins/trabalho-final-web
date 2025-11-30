@@ -53,6 +53,7 @@ model Recurso {
   @@map("recursos")
 }
 
+
 // Sessão de Estudo - Evento agendado para estudar um tópico
 model SessaoEstudo {
   id        String   @id @default(cuid())
@@ -61,6 +62,10 @@ model SessaoEstudo {
   dataFim   DateTime
   topicoId  String
   topico    Topico   @relation(fields: [topicoId], references: [id], onDelete: Cascade)
+  
+  // O campo já existia aqui, mas o Enum faltava lá embaixo
+  status    StatusSessao @default(AGENDADA)
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -79,4 +84,11 @@ enum Status {
   NAO_INICIADO
   EM_ANDAMENTO
   CONCLUIDO
+}
+
+enum StatusSessao {
+  AGENDADA
+  EM_ANDAMENTO
+  CONCLUIDA
+  CANCELADA
 }

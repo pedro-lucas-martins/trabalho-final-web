@@ -1029,16 +1029,34 @@ __decorate([
 /*!*****************************************************!*\
   !*** ./src/modules/topico/dto/update-topico.dto.ts ***!
   \*****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UpdateTopicoDto = void 0;
 const mapped_types_1 = __webpack_require__(/*! @nestjs/mapped-types */ "@nestjs/mapped-types");
 const create_topico_dto_1 = __webpack_require__(/*! ./create-topico.dto */ "./src/modules/topico/dto/create-topico.dto.ts");
+const class_validator_1 = __webpack_require__(/*! class-validator */ "class-validator");
+// Precisamos importar o Enum original para validar
+const create_topico_dto_2 = __webpack_require__(/*! ./create-topico.dto */ "./src/modules/topico/dto/create-topico.dto.ts");
 class UpdateTopicoDto extends (0, mapped_types_1.PartialType)(create_topico_dto_1.CreateTopicoDto) {
 }
 exports.UpdateTopicoDto = UpdateTopicoDto;
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsEnum)(create_topico_dto_2.StatusEnum),
+    __metadata("design:type", typeof (_a = typeof create_topico_dto_2.StatusEnum !== "undefined" && create_topico_dto_2.StatusEnum) === "function" ? _a : Object)
+], UpdateTopicoDto.prototype, "status", void 0);
 
 
 /***/ }),

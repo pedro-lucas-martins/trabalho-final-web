@@ -93,19 +93,34 @@ export default function MateriaDetail() {
     }
   };
 
-  // Função para atualizar o status da sessão de estudo
+  // --- NOVAS FUNÇÕES DE ATUALIZAÇÃO ---
+
+  const handleUpdateStatusTopico = async (
+    topicoId: string,
+    novoStatus: string
+  ) => {
+    try {
+      await topicoService.update(topicoId, { status: novoStatus });
+      loadMateria(); // Recarrega para atualizar a cor e o estado
+    } catch (err) {
+      console.error("Erro ao atualizar status do tópico:", err);
+      // Opcional: mostrar mensagem de erro
+    }
+  };
+
   const handleUpdateStatusSessao = async (
     sessaoId: string,
     novoStatus: string
   ) => {
     try {
       await sessaoEstudoService.update(sessaoId, { status: novoStatus });
-      loadMateria(); // Recarrega para refletir a mudança
+      loadMateria(); // Recarrega para atualizar a cor e o estado
     } catch (err) {
       console.error("Erro ao atualizar status da sessão:", err);
-      // Opcional: alert('Erro ao atualizar status');
     }
   };
+
+  // --- FUNÇÕES DE ESTILIZAÇÃO ---
 
   const getPrioridadeColor = (prioridade: string) => {
     switch (prioridade) {
@@ -120,6 +135,7 @@ export default function MateriaDetail() {
     }
   };
 
+  // Cores dinâmicas para os Dropdowns
   const getStatusColor = (status: string) => {
     switch (status) {
       case "CONCLUIDO":
@@ -127,7 +143,10 @@ export default function MateriaDetail() {
       case "EM_ANDAMENTO":
         return "bg-blue-100 text-blue-800";
       case "NAO_INICIADO":
+      case "AGENDADA": // Para sessões
         return "bg-gray-100 text-gray-800";
+      case "CANCELADA": // Para sessões
+        return "bg-red-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -275,7 +294,7 @@ export default function MateriaDetail() {
                 <h3 className="text-lg font-semibold text-gray-900">
                   {topico.titulo}
                 </h3>
-                <div className="flex gap-2 mt-2">
+                <div className="flex gap-2 mt-2 items-center">
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-medium ${getPrioridadeColor(
                       topico.prioridade
@@ -283,13 +302,20 @@ export default function MateriaDetail() {
                   >
                     {topico.prioridade}
                   </span>
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                      topico.status
-                    )}`}
+
+                  {/* SELECT: Edição de Status do Tópico */}
+                  <select
+                    value={topico.status}
+                    onChange={(e) =>
+                      handleUpdateStatusTopico(topico.id, e.target.value)
+                    }
+                    className={`text-xs font-semibold px-3 py-1 rounded-full border-0 cursor-pointer focus:ring-2 focus:ring-offset-1 focus:outline-none
+                      ${getStatusColor(topico.status)}`}
                   >
-                    {topico.status}
-                  </span>
+                    <option value="NAO_INICIADO">Não Iniciado</option>
+                    <option value="EM_ANDAMENTO">Em Andamento</option>
+                    <option value="CONCLUIDO">Concluído</option>
+                  </select>
                 </div>
               </div>
               <button
@@ -322,7 +348,7 @@ export default function MateriaDetail() {
               </div>
             )}
 
-            {/* LISTA DE SESSÕES DE ESTUDO */}
+            {/* LISTA: Sessões de Estudo */}
             {topico.sessoesEstudo && topico.sessoesEstudo.length > 0 && (
               <div className="mt-4 border-t pt-4">
                 <h4 className="text-sm font-semibold text-gray-700 mb-2">
@@ -335,32 +361,24 @@ export default function MateriaDetail() {
                       className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-100"
                     >
                       <div className="text-sm text-gray-600">
-                        {/* Exibe Data formatada */}
+                        {/* Data */}
                         📅 {new Date(sessao.dataInicio).toLocaleDateString()}
                         <span className="mx-2 text-gray-300">|</span>
-                        {/* Exibe Hora formatada */}
+                        {/* Hora */}
                         {new Date(sessao.dataInicio).toLocaleTimeString([], {
                           hour: "2-digit",
                           minute: "2-digit",
                         })}
                       </div>
 
-                      {/* Dropdown para alterar status */}
+                      {/* SELECT: Edição de Status da Sessão */}
                       <select
                         value={sessao.status}
                         onChange={(e) =>
                           handleUpdateStatusSessao(sessao.id, e.target.value)
                         }
                         className={`text-xs font-semibold px-3 py-1.5 rounded-full border-0 cursor-pointer transition-colors focus:ring-2 focus:ring-offset-1 focus:outline-none
-                          ${
-                            sessao.status === "CONCLUIDA"
-                              ? "bg-green-100 text-green-800 hover:bg-green-200 focus:ring-green-500"
-                              : sessao.status === "CANCELADA"
-                              ? "bg-red-100 text-red-800 hover:bg-red-200 focus:ring-red-500"
-                              : sessao.status === "EM_ANDAMENTO"
-                              ? "bg-blue-100 text-blue-800 hover:bg-blue-200 focus:ring-blue-500"
-                              : "bg-yellow-100 text-yellow-800 hover:bg-yellow-200 focus:ring-yellow-500"
-                          }`}
+                          ${getStatusColor(sessao.status)}`}
                       >
                         <option value="AGENDADA">Agendada</option>
                         <option value="EM_ANDAMENTO">Em Andamento</option>
