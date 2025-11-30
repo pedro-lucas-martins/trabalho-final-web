@@ -651,7 +651,8 @@ __decorate([
     __metadata("design:type", String)
 ], CreateSessaoEstudoDto.prototype, "dataFim", void 0);
 __decorate([
-    (0, class_validator_1.IsUUID)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateSessaoEstudoDto.prototype, "topicoId", void 0);
 
@@ -662,16 +663,51 @@ __decorate([
 /*!*******************************************************************!*\
   !*** ./src/modules/sessao-estudo/dto/update-sessao-estudo.dto.ts ***!
   \*******************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.UpdateSessaoEstudoDto = void 0;
-const mapped_types_1 = __webpack_require__(/*! @nestjs/mapped-types */ "@nestjs/mapped-types");
-const create_sessao_estudo_dto_1 = __webpack_require__(/*! ./create-sessao-estudo.dto */ "./src/modules/sessao-estudo/dto/create-sessao-estudo.dto.ts");
-class UpdateSessaoEstudoDto extends (0, mapped_types_1.PartialType)(create_sessao_estudo_dto_1.CreateSessaoEstudoDto) {
+exports.UpdateSessaoEstudoDto = exports.StatusSessaoEnum = void 0;
+const class_validator_1 = __webpack_require__(/*! class-validator */ "class-validator");
+// Ajuste estes valores conforme o seu Enum no schema.prisma
+var StatusSessaoEnum;
+(function (StatusSessaoEnum) {
+    StatusSessaoEnum["NAO_INICIADO"] = "NAO_INICIADO";
+    StatusSessaoEnum["EM_ANDAMENTO"] = "EM_ANDAMENTO";
+    StatusSessaoEnum["CONCLUIDO"] = "CONCLUIDO";
+})(StatusSessaoEnum || (exports.StatusSessaoEnum = StatusSessaoEnum = {}));
+class UpdateSessaoEstudoDto {
 }
 exports.UpdateSessaoEstudoDto = UpdateSessaoEstudoDto;
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsEnum)(StatusSessaoEnum),
+    __metadata("design:type", String)
+], UpdateSessaoEstudoDto.prototype, "status", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], UpdateSessaoEstudoDto.prototype, "anotacoes", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsDateString)(),
+    __metadata("design:type", String)
+], UpdateSessaoEstudoDto.prototype, "dataInicio", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsDateString)(),
+    __metadata("design:type", String)
+], UpdateSessaoEstudoDto.prototype, "dataFim", void 0);
 
 
 /***/ }),
@@ -981,7 +1017,8 @@ __decorate([
     __metadata("design:type", String)
 ], CreateTopicoDto.prototype, "status", void 0);
 __decorate([
-    (0, class_validator_1.IsUUID)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateTopicoDto.prototype, "materiaId", void 0);
 
@@ -1165,8 +1202,16 @@ let TopicoService = class TopicoService {
         this.prisma = prisma;
     }
     async create(createTopicoDto) {
+        // Extraímos o materiaId e deixamos o resto das propriedades em 'dadosTopico'
+        const { materiaId, ...dadosTopico } = createTopicoDto;
         return this.prisma.topico.create({
-            data: createTopicoDto,
+            data: {
+                ...dadosTopico,
+                // Usamos 'connect' para fazer a relação com a tabela de Materia
+                materia: {
+                    connect: { id: materiaId },
+                },
+            },
             include: {
                 recursos: true,
                 sessoesEstudo: true,

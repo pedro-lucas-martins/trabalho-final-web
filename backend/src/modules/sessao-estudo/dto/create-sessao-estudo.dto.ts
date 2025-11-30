@@ -1,4 +1,11 @@
-import { IsString, IsDateString, IsUUID, MinLength, MaxLength } from 'class-validator';
+import {
+  IsString,
+  IsDateString,
+  IsUUID,
+  MinLength,
+  MaxLength,
+  IsNotEmpty,
+} from "class-validator";
 
 export class CreateSessaoEstudoDto {
   @IsString()
@@ -12,6 +19,7 @@ export class CreateSessaoEstudoDto {
   @IsDateString()
   dataFim: string;
 
-  @IsUUID()
+  @IsString()
+  @IsNotEmpty()
   topicoId: string;
 }

@@ -8,8 +8,17 @@ export class TopicoService {
   constructor(private prisma: PrismaService) {}
 
   async create(createTopicoDto: CreateTopicoDto) {
+    // Extraímos o materiaId e deixamos o resto das propriedades em 'dadosTopico'
+    const { materiaId, ...dadosTopico } = createTopicoDto;
+
     return this.prisma.topico.create({
-      data: createTopicoDto,
+      data: {
+        ...dadosTopico,
+        // Usamos 'connect' para fazer a relação com a tabela de Materia
+        materia: {
+          connect: { id: materiaId },
+        },
+      },
       include: {
         recursos: true,
         sessoesEstudo: true,

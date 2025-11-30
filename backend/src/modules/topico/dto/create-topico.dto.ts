@@ -1,15 +1,22 @@
-import { IsString, IsEnum, IsUUID, MinLength, MaxLength } from 'class-validator';
+import {
+  IsString,
+  IsEnum,
+  IsUUID,
+  MinLength,
+  MaxLength,
+  IsNotEmpty,
+} from "class-validator";
 
 export enum PrioridadeEnum {
-  BAIXA = 'BAIXA',
-  MEDIA = 'MEDIA',
-  ALTA = 'ALTA',
+  BAIXA = "BAIXA",
+  MEDIA = "MEDIA",
+  ALTA = "ALTA",
 }
 
 export enum StatusEnum {
-  NAO_INICIADO = 'NAO_INICIADO',
-  EM_ANDAMENTO = 'EM_ANDAMENTO',
-  CONCLUIDO = 'CONCLUIDO',
+  NAO_INICIADO = "NAO_INICIADO",
+  EM_ANDAMENTO = "EM_ANDAMENTO",
+  CONCLUIDO = "CONCLUIDO",
 }
 
 export class CreateTopicoDto {
@@ -24,6 +31,7 @@ export class CreateTopicoDto {
   @IsEnum(StatusEnum)
   status: StatusEnum;
 
-  @IsUUID()
+  @IsString()
+  @IsNotEmpty()
   materiaId: string;
 }

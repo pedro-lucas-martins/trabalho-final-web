@@ -1,6 +1,11 @@
-import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { materiaService, topicoService, recursoService } from '../services/api';
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import {
+  materiaService,
+  topicoService,
+  recursoService,
+  sessaoEstudoService,
+} from "../services/api";
 
 interface Topico {
   id: string;
@@ -31,9 +36,9 @@ export default function MateriaDetail() {
   const [error, setError] = useState<string | null>(null);
   const [showTopicoForm, setShowTopicoForm] = useState(false);
   const [topicoFormData, setTopicoFormData] = useState({
-    titulo: '',
-    prioridade: 'MEDIA',
-    status: 'NAO_INICIADO',
+    titulo: "",
+    prioridade: "MEDIA",
+    status: "NAO_INICIADO",
   });
 
   useEffect(() => {
@@ -49,7 +54,7 @@ export default function MateriaDetail() {
       setMateria(response.data);
       setError(null);
     } catch (err) {
-      setError('Erro ao carregar matéria');
+      setError("Erro ao carregar matéria");
       console.error(err);
     } finally {
       setLoading(false);
@@ -64,53 +69,67 @@ export default function MateriaDetail() {
         materiaId: id,
       });
       setTopicoFormData({
-        titulo: '',
-        prioridade: 'MEDIA',
-        status: 'NAO_INICIADO',
+        titulo: "",
+        prioridade: "MEDIA",
+        status: "NAO_INICIADO",
       });
       setShowTopicoForm(false);
       loadMateria();
     } catch (err) {
-      setError('Erro ao adicionar tópico');
+      setError("Erro ao adicionar tópico");
       console.error(err);
     }
   };
 
   const handleDeleteTopico = async (topicoId: string) => {
-    if (window.confirm('Tem certeza que deseja deletar este tópico?')) {
+    if (window.confirm("Tem certeza que deseja deletar este tópico?")) {
       try {
         await topicoService.delete(topicoId);
         loadMateria();
       } catch (err) {
-        setError('Erro ao deletar tópico');
+        setError("Erro ao deletar tópico");
         console.error(err);
       }
     }
   };
 
+  // Função para atualizar o status da sessão de estudo
+  const handleUpdateStatusSessao = async (
+    sessaoId: string,
+    novoStatus: string
+  ) => {
+    try {
+      await sessaoEstudoService.update(sessaoId, { status: novoStatus });
+      loadMateria(); // Recarrega para refletir a mudança
+    } catch (err) {
+      console.error("Erro ao atualizar status da sessão:", err);
+      // Opcional: alert('Erro ao atualizar status');
+    }
+  };
+
   const getPrioridadeColor = (prioridade: string) => {
     switch (prioridade) {
-      case 'ALTA':
-        return 'bg-red-100 text-red-800';
-      case 'MEDIA':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'BAIXA':
-        return 'bg-green-100 text-green-800';
+      case "ALTA":
+        return "bg-red-100 text-red-800";
+      case "MEDIA":
+        return "bg-yellow-100 text-yellow-800";
+      case "BAIXA":
+        return "bg-green-100 text-green-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'CONCLUIDO':
-        return 'bg-green-100 text-green-800';
-      case 'EM_ANDAMENTO':
-        return 'bg-blue-100 text-blue-800';
-      case 'NAO_INICIADO':
-        return 'bg-gray-100 text-gray-800';
+      case "CONCLUIDO":
+        return "bg-green-100 text-green-800";
+      case "EM_ANDAMENTO":
+        return "bg-blue-100 text-blue-800";
+      case "NAO_INICIADO":
+        return "bg-gray-100 text-gray-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -136,7 +155,10 @@ export default function MateriaDetail() {
   return (
     <div>
       <div className="mb-8">
-        <a href="/materias" className="text-green-600 hover:text-green-700 mb-4 inline-block">
+        <a
+          href="/materias"
+          className="text-green-600 hover:text-green-700 mb-4 inline-block"
+        >
           ← Voltar para Matérias
         </a>
         <h1 className="text-3xl font-bold text-gray-900">{materia.nome}</h1>
@@ -173,7 +195,10 @@ export default function MateriaDetail() {
                 type="text"
                 value={topicoFormData.titulo}
                 onChange={(e) =>
-                  setTopicoFormData({ ...topicoFormData, titulo: e.target.value })
+                  setTopicoFormData({
+                    ...topicoFormData,
+                    titulo: e.target.value,
+                  })
                 }
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 focus:border-transparent"
                 placeholder="Ex: Álgebra Linear"
@@ -294,6 +319,57 @@ export default function MateriaDetail() {
                     </li>
                   ))}
                 </ul>
+              </div>
+            )}
+
+            {/* LISTA DE SESSÕES DE ESTUDO */}
+            {topico.sessoesEstudo && topico.sessoesEstudo.length > 0 && (
+              <div className="mt-4 border-t pt-4">
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">
+                  Sessões de Estudo
+                </h4>
+                <div className="space-y-2">
+                  {topico.sessoesEstudo.map((sessao) => (
+                    <div
+                      key={sessao.id}
+                      className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-100"
+                    >
+                      <div className="text-sm text-gray-600">
+                        {/* Exibe Data formatada */}
+                        📅 {new Date(sessao.dataInicio).toLocaleDateString()}
+                        <span className="mx-2 text-gray-300">|</span>
+                        {/* Exibe Hora formatada */}
+                        {new Date(sessao.dataInicio).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </div>
+
+                      {/* Dropdown para alterar status */}
+                      <select
+                        value={sessao.status}
+                        onChange={(e) =>
+                          handleUpdateStatusSessao(sessao.id, e.target.value)
+                        }
+                        className={`text-xs font-semibold px-3 py-1.5 rounded-full border-0 cursor-pointer transition-colors focus:ring-2 focus:ring-offset-1 focus:outline-none
+                          ${
+                            sessao.status === "CONCLUIDA"
+                              ? "bg-green-100 text-green-800 hover:bg-green-200 focus:ring-green-500"
+                              : sessao.status === "CANCELADA"
+                              ? "bg-red-100 text-red-800 hover:bg-red-200 focus:ring-red-500"
+                              : sessao.status === "EM_ANDAMENTO"
+                              ? "bg-blue-100 text-blue-800 hover:bg-blue-200 focus:ring-blue-500"
+                              : "bg-yellow-100 text-yellow-800 hover:bg-yellow-200 focus:ring-yellow-500"
+                          }`}
+                      >
+                        <option value="AGENDADA">Agendada</option>
+                        <option value="EM_ANDAMENTO">Em Andamento</option>
+                        <option value="CONCLUIDA">Concluída</option>
+                        <option value="CANCELADA">Cancelada</option>
+                      </select>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
